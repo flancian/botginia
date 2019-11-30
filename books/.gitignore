@@ -1,0 +1,4 @@
+# Unsure whether github wants to host project gutenberg books, so skip for now.
+# Here I just have all of Woolf's books in TXT format, from Gutenberg AU.
+
+*.txt 
