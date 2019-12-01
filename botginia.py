@@ -5,12 +5,17 @@ import os
 import random
 import tweepy
 
-import secret
+import config
+# config.py Must export:
+# - CONSUMER_SECRET
+# - ACCESS_TOKEN_SECRET
+# - DEBUG
+DEBUG = config.DEBUG
+CONSUMER_SECRET = config.CONSUMER_SECRET
+ACCESS_TOKEN_SECRET = config.ACCESS_TOKEN_SECRET
 
-DEBUG = True
-
-auth = tweepy.OAuthHandler("pagwyePax8TSOveeGYveRZ153", secret.CONSUMER_SECRET)
-auth.set_access_token("1200715929707044865-6ZpORfGjD8rs3qBgwOofpNYj3ztS9j", secret.ACCESS_TOKEN_SECRET)
+auth = tweepy.OAuthHandler("pagwyePax8TSOveeGYveRZ153", CONSUMER_SECRET)
+auth.set_access_token("1200715929707044865-6ZpORfGjD8rs3qBgwOofpNYj3ztS9j", ACCESS_TOKEN_SECRET)
 
 api = tweepy.API(auth)
 
@@ -28,7 +33,7 @@ def clean_book(book):
     output = []
     for line in lines:
         if line.startswith('#'):
-            next
+            continue
         l = line.split("\n")
         output.append(" ".join(l).strip())
     return output
@@ -36,7 +41,7 @@ def clean_book(book):
 def score(string):
     # Right now this defaults to 0 and has some ad-hoc heuristics for favouring (-1) 
     # and deprioritizing (1) phrases. "nice".
-    if len(string) < 20:
+    if len(string) < 40:
         return 1
     if len(string) > 270:
         return 1
@@ -48,7 +53,7 @@ def main():
     book = random.choice(clean_books)
 
     # Choose k phrases from that book.
-    phrases = random.choices(book, k=10)
+    phrases = random.choices(book, k=20)
 
     # Score them and pick the first.
     phrase = sorted(phrases, key=score)[0]
