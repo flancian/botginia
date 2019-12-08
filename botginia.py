@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import glob
+import itertools
 import os
 import random
 import tweepy
@@ -40,26 +41,40 @@ def clean_book(book):
 
 def score(string):
     # Right now this defaults to 0 and has some ad-hoc heuristics for favouring (-1) 
-    # and deprioritizing (1) phrases. "nice".
-    if len(string) < 40:
-        return 1
+    # and deprioritizing (1) phrases. Unix-nice-like.
     if len(string) > 270:
         return 1
+    if len(string) < 80:
+        return 1
+    if string[-1] in ['.', '\'', '\"', '!', '?']:
+        return -1
+    if len(string) > 150:
+        return -1
     return 0
 
 def main():
-    # Choose a book.
+    # Clean up books.
     clean_books = [clean_book(book) for book in get_books()]
-    book = random.choice(clean_books)
 
-    # Choose k phrases from that book.
-    phrases = random.choices(book, k=20)
+    # Define a corpus: either all books ("flatten") or one chosen at random.
+    corpus = [phrase for book in clean_books for phrase in book]
+    # corpus = random.choice(clean_books)
 
-    # Score them and pick the first.
-    phrase = sorted(phrases, key=score)[0]
+    # Note to self: I want to write the following but it doesn't work.
+    # corpus = [phrase for phrase in book for book in clean_books]
 
-    # Score them and pick the first.
+    # Choose k phrases from the corpus and score them.
+    phrases = sorted(random.choices(corpus, k=20), key=score)
+
+    # Pick the highest scoring.
+    phrase = phrases[0]
+
+    # Print or tweet.
     if DEBUG:
+        # import pdb; pdb.set_trace()
+        from pprint import pprint
+        print("Phrases considered:")
+        pprint(phrases)
         print("Would tweet:", phrase)
     else:
         api.update_status(phrase)
